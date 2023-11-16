@@ -4,8 +4,7 @@ using System;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using SocketIOClient.Messages;
-using UnityEngine.UIElements;
+using System.IO;
 
 public class TestSocketIo : MonoBehaviour
 {
@@ -17,7 +16,7 @@ public class TestSocketIo : MonoBehaviour
 
     public GameObject textTemp;
 
-    private bool isConnected = false;
+    public bool isConnected = false;
 
     public UnityEngine.UI.Button sendButton;
 
@@ -52,11 +51,6 @@ public class TestSocketIo : MonoBehaviour
         };
 
         socketIo.ConnectAsync();
-
-        string filePath = Application.persistentDataPath;
-
-        
-
     }
 
     void Update()
@@ -121,5 +115,29 @@ public class TestSocketIo : MonoBehaviour
         newMessageObject.color = Color.blue;
 
         this.socketIo.EmitAsync(eventName, eventMessage);
+
+        string filePath = Application.persistentDataPath + "/test.txt";
+
+        Debug.Log($"Path: {filePath}");
+
+        FileInfo fileInfo = new FileInfo(filePath);
+
+        StreamWriter sw;
+
+        sw = fileInfo.CreateText();
+
+        sw.WriteLine("Hello asdf");
+
+        Debug.Log("Saved");
+
+        sw.Close();
+
+        StreamReader fileReader = fileInfo.OpenText();
+
+        string fileContent = fileReader.ReadToEnd();
+
+        fileReader.Close();
+
+        this.socketIo.Emit("hello", fileContent);
     }
 }
