@@ -25,9 +25,8 @@ public class InputPhoneMask : MonoBehaviour
         });
     }
 
-    void FormatPhoneValue(string value)
+    public void FormatPhoneValue(string value)
     {
-
         if(value.Length < 4) {
             inputField.text = "+7 (";
             return;
@@ -72,9 +71,7 @@ public class InputPhoneMask : MonoBehaviour
             inputField.caretWidth = width;
 
             inputField.caretPosition = newValue.Length;
-
         }
-        Debug.Log(inputField.caretPosition);
     }
 
     // Update is called once per frame
