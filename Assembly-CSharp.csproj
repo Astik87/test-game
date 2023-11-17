@@ -61,8 +61,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\InputPhoneMask.cs" />
+    <Compile Include="Assets\LoadScene.cs" />
     <Compile Include="Assets\GetDeviceId.cs" />
+    <Compile Include="Assets\TestScript.cs" />
     <Compile Include="Assets\TestSocketIo.cs" />
+    <Compile Include="Assets\TestRequests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

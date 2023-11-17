@@ -2,32 +2,16 @@ using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using System;
 using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
-using System.IO;
 
-public class TestSocketIo : MonoBehaviour
+public static class TestSocketIo
 {
-    private Uri uri;
-    private SocketIOUnity socketIo;
+    private static Uri uri;
+    public static SocketIOUnity socketIo;
 
-    public TMP_InputField eventInput;
-    public TMP_InputField messageInput;
+    public static bool isConnected = false;
 
-    public GameObject textTemp;
-
-    public bool isConnected = false;
-
-    public UnityEngine.UI.Button sendButton;
-
-    public struct Test
-    {
-        public int id;
-        public string name;
-    }
-
-    // Start is called before the first frame update
-    void Start()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void Connect()
     {
         Screen.fullScreen = false;
 
@@ -39,105 +23,21 @@ public class TestSocketIo : MonoBehaviour
 
         socketIo.JsonSerializer = new NewtonsoftJsonSerializer();
 
-        socketIo.OnUnityThread("hello", this.OnMessage);
-
         socketIo.OnConnected += (e, h) => {
-            this.isConnected = true;
+            Debug.Log("Socket IO Connected");
+            isConnected = true;
         };
 
         socketIo.OnDisconnected += (e, h) =>
         {
-            this.isConnected = false;
+            isConnected = false;
         };
 
         socketIo.ConnectAsync();
     }
 
-    void Update()
-    {
-
-        if(!isConnected)
-        {
-            if(sendButton.interactable)
-            {
-                sendButton.interactable = false;
-            }
-
-            return;
-        }
-
-        string eventName = eventInput.text;
-        string eventMessage = messageInput.text;
-
-        if((eventName.Length == 0 || eventMessage.Length == 0) && sendButton.interactable)
-        {
-            sendButton.interactable = false;
-        }
-
-        if (eventName.Length != 0 && eventMessage.Length != 0 && !sendButton.interactable)
-        {
-            sendButton.interactable = true;
-        }
-    }
-
-    public void OnMessage(SocketIOResponse data)
+    static void OnMessage(SocketIOResponse data)
     {
         Debug.Log(data.GetValue<string>());
-        TMP_Text newMessage = AddNewMessage($"hello: {data.GetValue<string>()}");
-        newMessage.color = Color.green;
-    }
-
-    public TMP_Text AddNewMessage(string text)
-    {
-        GameObject newMessageObject = new GameObject();
-
-        ContentSizeFitter newMessageObjectSizeFitter = newMessageObject.AddComponent<ContentSizeFitter>();
-        TMP_Text newMessageObjectText = newMessageObject.AddComponent<TextMeshProUGUI>();
-
-        newMessageObjectSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-        newMessageObjectSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-        newMessageObjectText.text = text;
-        newMessageObjectText.fontSize = 8;
-
-        newMessageObject.transform.SetParent(this.gameObject.transform, false);
-
-        return newMessageObjectText;
-    }
-
-    public void SendMessage()
-    {
-        string eventName = eventInput.text;
-        string eventMessage = messageInput.text;
-
-        TMP_Text newMessageObject = this.AddNewMessage($"{eventName}: {eventMessage}");
-
-        newMessageObject.color = Color.blue;
-
-        this.socketIo.EmitAsync(eventName, eventMessage);
-
-        string filePath = Application.persistentDataPath + "/test.txt";
-
-        Debug.Log($"Path: {filePath}");
-
-        FileInfo fileInfo = new FileInfo(filePath);
-
-        StreamWriter sw;
-
-        sw = fileInfo.CreateText();
-
-        sw.WriteLine("Hello asdf");
-
-        Debug.Log("Saved");
-
-        sw.Close();
-
-        StreamReader fileReader = fileInfo.OpenText();
-
-        string fileContent = fileReader.ReadToEnd();
-
-        fileReader.Close();
-
-        this.socketIo.Emit("hello", fileContent);
     }
 }
